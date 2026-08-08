@@ -3,17 +3,24 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#f4f2ec">
+  <meta name="theme-color" content="#f6f7fb">
+  <meta name="description" content="Lucubro is a local-first AI company workbench for a single CEO, with durable Work, named Employees, review evidence, and scoped decisions.">
   <title>Lucubro · Company</title>
+  <link rel="icon" href="/assets/brand/lucubro-mark.svg" type="image/svg+xml">
   <link rel="stylesheet" href="/vendor/geist/wght.css">
   <link rel="stylesheet" href="/company.css">
+  <link rel="stylesheet" href="/company-v3.css">
+  <link rel="stylesheet" href="/company-durable.css">
+  <link rel="stylesheet" href="/company-kinetic.css">
+  <link rel="stylesheet" href="/company-a11y-v3.css">
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js" integrity="sha512-NcZdtrT77bJr4STcmsGAESr06BYGE8woZdSdEgqnpyqac7sugNO+Tr4bGwGF3MsnEkGKhU2KL2xh6Ec+BqsaHA==" crossorigin="anonymous" defer></script>
 </head>
-<body>
-  <div class="app-shell" data-ui="company-v2">
+<body data-company-has-work="false">
+  <a class="skip-link" href="#company-conversation">Skip to manager conversation</a>
+  <div class="app-shell" data-ui="company-v3">
     <header class="topbar" aria-label="Company workspace header">
       <a class="brand" href="/company" aria-label="Lucubro Company home">
-        <img class="brand-mark" src="/assets/brand/lucubro-mark.svg" width="28" height="28" alt="">
+        <img class="brand-mark" src="/assets/brand/lucubro-mark.svg" width="30" height="30" alt="">
         <span class="brand-wordmark">Lucubro</span>
       </a>
 
@@ -33,17 +40,56 @@
     </header>
 
     <main class="workspace">
-      <section class="conversation" aria-label="Manager conversation">
-        <div id="conversation-feed" class="conversation-feed" aria-live="polite" aria-relevant="additions">
-          <article class="message manager-message intro-message" data-animate="intro">
-            <div class="message-avatar" aria-hidden="true">A</div>
-            <div class="message-content">
-              <div class="message-author">Alex</div>
-              <h1>What should we move forward?</h1>
-              <p class="lede">Give me the outcome. I’ll structure the Work, assign the right Employee, and only bring back decisions that need you.</p>
+      <section id="company-conversation" class="conversation" aria-label="Manager conversation" tabindex="-1">
+        <article class="message manager-message intro-message" data-animate="intro">
+          <div class="message-avatar" aria-hidden="true">A</div>
+          <div class="message-content">
+            <div class="message-author">Alex</div>
+            <h1>What should we move forward?</h1>
+            <p class="lede">Give me the outcome. I’ll structure the Work, assign the right Employee, and only bring back decisions that need you.</p>
+            <p class="manager-operating-model" aria-label="Alex operating model">
+              <span>Clarify intent</span>
+              <span>Structure Work</span>
+              <span>Assign Employees</span>
+              <span>Surface decisions</span>
+            </p>
+          </div>
+        </article>
+
+        <section id="company-context" class="company-context" aria-label="Current company context" data-state="quiet">
+          <div class="context-intro">
+            <span class="context-kicker">Working set</span>
+            <span id="context-copy" class="context-copy">Quiet until something changes.</span>
+          </div>
+          <dl class="context-stats">
+            <div class="context-stat">
+              <dt>Active Work</dt>
+              <dd id="context-active-count">0</dd>
             </div>
-          </article>
-        </div>
+            <div class="context-stat">
+              <dt>Review</dt>
+              <dd id="context-review-count">0</dd>
+            </div>
+            <div class="context-stat">
+              <dt>Needs you</dt>
+              <dd id="context-decision-count">0</dd>
+            </div>
+          </dl>
+        </section>
+
+        <section id="durable-work-context" class="durable-work-context" aria-label="Durable Work context" hidden>
+          <div class="durable-work-context-header">
+            <div class="durable-work-context-title">
+              <span class="context-kicker">Work context</span>
+              <strong>Recent durable Work</strong>
+            </div>
+            <span id="durable-work-summary" class="durable-work-summary">Loading Work context…</span>
+          </div>
+          <div id="durable-work-list" class="durable-work-list"></div>
+          <div id="durable-work-detail-host" class="durable-work-detail-host" hidden></div>
+        </section>
+
+        <div id="conversation-feed" class="conversation-feed" aria-live="polite" aria-relevant="additions"></div>
       </section>
     </main>
 
@@ -77,15 +123,46 @@
               <span id="settings-summary-value" class="settings-summary-value">Checking local workspace…</span>
             </summary>
             <div class="settings-panel">
-              <p>Execution stays behind the Work. Change these only when the local target or runtime changes.</p>
-              <div class="settings-grid">
-                <label for="repo-dir">Repository path
-                  <input id="repo-dir" name="repoDir" placeholder="/path/to/repository" autocomplete="off" required>
-                </label>
-                <label for="runtime">Runtime
-                  <select id="runtime" name="runtime" required aria-describedby="runtime-note"></select>
-                </label>
+              <div class="execution-panel-header">
+                <div class="execution-panel-heading">
+                  <strong>Execution setup</strong>
+                  <span>Choose how this Work should run and where it should operate. Lucubro keeps these mechanics behind the Work once they are set.</span>
+                </div>
+                <button id="close-run-settings" class="execution-panel-close" type="button" aria-label="Close Execution setup">×</button>
               </div>
+
+              <div class="execution-fields">
+                <section class="execution-field runtime-field" aria-labelledby="runtime-choice-label">
+                  <div class="execution-field-head">
+                    <span id="runtime-choice-label" class="execution-field-label">Runtime</span>
+                    <span class="execution-field-hint">Choose an available execution engine</span>
+                  </div>
+                  <div id="runtime-choice" class="runtime-choice" role="radiogroup" aria-labelledby="runtime-choice-label" aria-describedby="runtime-note"></div>
+                  <select id="runtime" class="runtime-native-select" name="runtime" required aria-hidden="true" tabindex="-1"></select>
+                  <p id="runtime-selection-receipt" class="runtime-selection-receipt" role="status" hidden></p>
+                </section>
+
+                <section class="execution-field repo-field">
+                  <div class="execution-field-head">
+                    <label class="execution-field-label" for="repo-dir">Repository path</label>
+                    <span class="execution-field-hint">Local path</span>
+                  </div>
+                  <div id="repo-path-control" class="repo-path-control" data-state="empty">
+                    <div class="repo-path-input-row">
+                      <input id="repo-dir" name="repoDir" placeholder="Paste or type /path/to/repository" autocomplete="off" required aria-describedby="repo-path-note repo-path-receipt">
+                    </div>
+                    <div class="repo-path-line" aria-hidden="true">
+                      <span class="repo-path-line-active"></span>
+                      <span id="repo-path-scan" class="repo-path-scan"></span>
+                    </div>
+                    <div class="repo-path-feedback">
+                      <p id="repo-path-note" class="repo-path-note">Paste or type the local repository path.</p>
+                      <p id="repo-path-receipt" class="repo-path-receipt" role="status" hidden>Path received</p>
+                    </div>
+                  </div>
+                </section>
+              </div>
+
               <div class="runtime-line">
                 <span id="runtime-indicator" class="runtime-indicator" aria-hidden="true"></span>
                 <p id="runtime-note" class="runtime-note" role="status">Checking local workspace…</p>
@@ -107,5 +184,8 @@
     </footer>
   </div>
   <script src="/company.js" defer></script>
+  <script src="/company-durable.js" defer></script>
+  <script src="/company-v3.js" defer></script>
+  <script src="/company-kinetic.js" defer></script>
 </body>
 </html>
